@@ -8,18 +8,13 @@ local Menu = { -- the config table
         gradientred = {255, 255, 255},
     },
 
-    tabs = {
-        global = false, 
-        players = true, 
+    tabs = { 
+        main = true, 
         colors = false,
         config = false,
     },
 
-    global_tab = {
-        active = true,
-    },
-
-    players_tab = {
+    main_tab = {
         active = true,
         max_distance = 2500,
         alpha = 10,
@@ -91,7 +86,7 @@ end)()
 
 
 local function distance_check(entity, local_player)
-    if vector.Distance( entity:GetAbsOrigin(), local_player:GetAbsOrigin()) > Menu.players_tab.max_distance then 
+    if vector.Distance( entity:GetAbsOrigin(), local_player:GetAbsOrigin()) > Menu.main_tab.max_distance then 
         return false 
     end 
     return true
@@ -205,21 +200,21 @@ callbacks.Register( "Draw", "gradient healthbar", function()
 
         ImMenu.BeginFrame(1) -- tabs
 
-        if ImMenu.Button("Players") then
-            Menu.tabs.players = true
+        if ImMenu.Button("Main") then
+            Menu.tabs.main = true
             Menu.tabs.colors = false
             Menu.tabs.config = false
         end
 
 
         if ImMenu.Button("Colors") then
-            Menu.tabs.players = false
+            Menu.tabs.main = false
             Menu.tabs.colors = true
             Menu.tabs.config = false
         end
 
         if ImMenu.Button("Config") then
-            Menu.tabs.players = false
+            Menu.tabs.main = false
             Menu.tabs.colors = false
             Menu.tabs.config = true
         end
@@ -227,32 +222,32 @@ callbacks.Register( "Draw", "gradient healthbar", function()
         ImMenu.EndFrame()
 
 
-        if Menu.tabs.players then 
+        if Menu.tabs.main then 
             ImMenu.BeginFrame(1)
-            Menu.players_tab.active =  ImMenu.Checkbox("Active", Menu.players_tab.active)
+            Menu.main_tab.active =  ImMenu.Checkbox("Active", Menu.main_tab.active)
             ImMenu.EndFrame()
 
             ImMenu.BeginFrame(1)
-            Menu.players_tab.max_distance = ImMenu.Slider("Max Distance", Menu.players_tab.max_distance , 100, 6000)
+            Menu.main_tab.max_distance = ImMenu.Slider("Max Distance", Menu.main_tab.max_distance , 100, 6000)
             ImMenu.EndFrame()
 
             ImMenu.BeginFrame(1)
-            Menu.players_tab.alpha = ImMenu.Slider("Alpha", Menu.players_tab.alpha , 0, 10)
+            Menu.main_tab.alpha = ImMenu.Slider("Alpha", Menu.main_tab.alpha , 0, 10)
             ImMenu.EndFrame()
 
             ImMenu.BeginFrame(1)
             ImMenu.Text("Ignore List")
             ImMenu.EndFrame()
             ImMenu.BeginFrame(1)
-            Menu.players_tab.ignore.enemies =  ImMenu.Checkbox("Enemies", Menu.players_tab.ignore.enemies)
-            Menu.players_tab.ignore.invisible =  ImMenu.Checkbox("Invisible", Menu.players_tab.ignore.invisible)
+            Menu.main_tab.ignore.enemies =  ImMenu.Checkbox("Enemies", Menu.main_tab.ignore.enemies)
+            Menu.main_tab.ignore.invisible =  ImMenu.Checkbox("Invisible", Menu.main_tab.ignore.invisible)
             ImMenu.EndFrame()
 
             ImMenu.BeginFrame(1)
             ImMenu.Text("Health bar Customization")
             ImMenu.EndFrame()
             ImMenu.BeginFrame(1)
-            Menu.players_tab.draw.bars_thickness = ImMenu.Slider("Health Bar Thickness", Menu.players_tab.draw.bars_thickness , 1, 10)
+            Menu.main_tab.draw.bars_thickness = ImMenu.Slider("Health Bar Thickness", Menu.main_tab.draw.bars_thickness , 1, 10)
             ImMenu.EndFrame()
 
         end
@@ -303,7 +298,7 @@ callbacks.Register( "Draw", "gradient healthbar", function()
     
 
 
-        if Menu.players_tab.active then 
+        if Menu.main_tab.active then 
             local players = entities.FindByClass( "CTFPlayer" )
             for i,p in pairs(players) do 
                 if p:IsAlive() and not p:IsDormant() and distance_check(p, localPlayer) and p ~= localPlayer then 
@@ -314,23 +309,23 @@ callbacks.Register( "Draw", "gradient healthbar", function()
                     local gradientColor = nil   
 
 
-                    if Menu.players_tab.ignore.friends and IsFriend(pIndex, true) then
+                    if Menu.main_tab.ignore.friends and IsFriend(pIndex, true) then
                         goto esp_continue
                     end
                     
-                    if Menu.players_tab.ignore.teammates and enemyTeam == localTeam then 
-                        if IsFriend(pIndex, true) and not Menu.players_tab.ignore.friends then 
+                    if Menu.main_tab.ignore.teammates and enemyTeam == localTeam then 
+                        if IsFriend(pIndex, true) and not Menu.main_tab.ignore.friends then 
                             goto friends_vip_ignore_check_bypass -- was ignoring friends when ignoring teammates
                         end
                         goto esp_continue
                     end
                     
-                    if Menu.players_tab.ignore.enemies and enemyTeam ~= localTeam then 
+                    if Menu.main_tab.ignore.enemies and enemyTeam ~= localTeam then 
                         goto esp_continue
                     end
                     
-                    if Menu.players_tab.ignore.invisible and p:InCond(4) then 
-                        if IsFriend(pIndex, true) and not Menu.players_tab.ignore.friends then 
+                    if Menu.main_tab.ignore.invisible and p:InCond(4) then 
+                        if IsFriend(pIndex, true) and not Menu.main_tab.ignore.friends then 
                             goto friends_vip_ignore_check_bypass
                         end
                         goto esp_continue
@@ -350,12 +345,12 @@ callbacks.Register( "Draw", "gradient healthbar", function()
                     if not x or not y or not x2 or not y2 then goto esp_continue end
                     local h, w = y2 - y, x2 - x
 
-                    local alpha = math.floor(255 * (Menu.players_tab.alpha / 10))
+                    local alpha = math.floor(255 * (Menu.main_tab.alpha / 10))
 
                     local text_pos_table = {}
 
 
-                    if Menu.players_tab.draw.health_bar then 
+                    if Menu.main_tab.draw.health_bar then 
                         health = p:GetHealth()
                         maxHealth = p:GetMaxHealth()
                         percentageHealth = math.floor(health / maxHealth * 100)
@@ -365,33 +360,33 @@ callbacks.Register( "Draw", "gradient healthbar", function()
                         local health_bar_pos = nil
                         local health_bar_backround_pos = nil
 
-                        if Menu.players_tab.draw.selected_health_bar_pos == 1 then -- left
+                        if Menu.main_tab.draw.selected_health_bar_pos == 1 then -- left
                             healthBarSize = math.floor(h * (health / maxHealth))
                             maxHealthBarSize = math.floor(h)
                             if percentageHealth > 100 then 
                                 healthBarSize = maxHealthBarSize
                             end
-                            health_bar_pos = {x - (4 + Menu.players_tab.draw.bars_thickness), (y + h) - healthBarSize, x - 4, (y + h)}
+                            health_bar_pos = {x - (4 + Menu.main_tab.draw.bars_thickness), (y + h) - healthBarSize, x - 4, (y + h)}
 
-                            if not Menu.players_tab.draw.bars_static_bacrkound then
+                            if not Menu.main_tab.draw.bars_static_bacrkound then
                                 health_bar_backround_pos = {health_bar_pos[1] - 1, health_bar_pos[2] - 1, health_bar_pos[3] + 1, health_bar_pos[4] + 1}
                             else
-                                health_bar_backround_pos = {x - (5 + Menu.players_tab.draw.bars_thickness), y - 1, x - 3, (y + h) + 1}
+                                health_bar_backround_pos = {x - (5 + Menu.main_tab.draw.bars_thickness), y - 1, x - 3, (y + h) + 1}
                             end
                         end
 
-                        if Menu.players_tab.draw.selected_health_bar_pos == 2 then -- down
+                        if Menu.main_tab.draw.selected_health_bar_pos == 2 then -- down
                             healthBarSize = math.floor(w * (health / maxHealth))
                             maxHealthBarSize = math.floor(w)
                             if percentageHealth > 100 then 
                                 healthBarSize = maxHealthBarSize
                             end
-                            health_bar_pos = {x + 1, y + h + 3, x - 1 + healthBarSize, y + h + 3 + Menu.players_tab.draw.bars_thickness}
+                            health_bar_pos = {x + 1, y + h + 3, x - 1 + healthBarSize, y + h + 3 + Menu.main_tab.draw.bars_thickness}
 
-                            if not Menu.players_tab.draw.bars_static_bacrkound then
+                            if not Menu.main_tab.draw.bars_static_bacrkound then
                                 health_bar_backround_pos = {health_bar_pos[1] - 1, health_bar_pos[2] - 1, health_bar_pos[3] + 1, health_bar_pos[4] + 1}
                             else
-                                health_bar_backround_pos = {x, y + h + 2, x + w, y + h + 4 + Menu.players_tab.draw.bars_thickness}
+                                health_bar_backround_pos = {x, y + h + 2, x + w, y + h + 4 + Menu.main_tab.draw.bars_thickness}
                             end
                         end
 
